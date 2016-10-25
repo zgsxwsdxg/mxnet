@@ -10,7 +10,7 @@ import random
 import argparse
 import cv2
 import time
-
+import json
 
 def list_image(root, recursive, exts):
     image_list = []
@@ -26,6 +26,14 @@ def list_image(root, recursive, exts):
                     if path not in cat:
                         cat[path] = len(cat)
                     yield (len(image_list), os.path.relpath(fpath, root), cat[path])
+        
+        if len(cat) != 0:
+            labels_path = os.path.join(root,'labels_map.json')
+            if os.path.isfile(labels_path):
+                os.remove(labels_path)
+            with open(labels_path, 'w') as file_writer:
+                cat_json = json.dumps(cat, sort_keys = True, indent = 0)
+                file_writer.write(cat_json)
     else:
         for fname in os.listdir(root):
             fpath = os.path.join(root, fname)
@@ -34,13 +42,16 @@ def list_image(root, recursive, exts):
                 yield (len(image_list), os.path.relpath(fpath, root), 0)
 
 def write_list(path_out, image_list):
-    with open(path_out, 'w') as fout:
-        for i, item in enumerate(image_list):
-            line = '%d\t' % item[0]
-            for j in item[2:]:
-                line += '%f\t' % j
-            line += '%s\n' % item[1]
-            fout.write(line)
+    if os.path.isfile(path_out):
+        os.remove(path_out)     
+    if len(image_list) != 0:
+        with open(path_out, 'w') as fout:
+            for i, item in enumerate(image_list):
+                line = '%d\t' % item[0]
+                for j in item[2:]:
+                    line += '%f\t' % j
+                line += '%s\n' % item[1]
+                fout.write(line)
 
 def make_list(args):
     image_list = list_image(args.root, args.recursive, args.exts)
