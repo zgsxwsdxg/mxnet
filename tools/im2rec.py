@@ -1,4 +1,6 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 from __future__ import print_function
 import os
 import sys
@@ -13,6 +15,7 @@ import time
 import json
 
 def list_image(root, recursive, exts):
+    print (root)
     image_list = []
     if recursive:
         cat = {}
@@ -43,7 +46,8 @@ def list_image(root, recursive, exts):
 
 def write_list(path_out, image_list):
     if os.path.isfile(path_out):
-        os.remove(path_out)     
+        os.remove(path_out) 
+    print (path_out)
     if len(image_list) != 0:
         with open(path_out, 'w') as fout:
             for i, item in enumerate(image_list):
@@ -54,6 +58,7 @@ def write_list(path_out, image_list):
                 fout.write(line)
 
 def make_list(args):
+    list_root_path = os.path.join(args.root,args.prefix)
     image_list = list_image(args.root, args.recursive, args.exts)
     image_list = list(image_list)
     if args.shuffle is True:
@@ -69,9 +74,9 @@ def make_list(args):
             str_chunk = ''
         sep = int(chunk_size * args.train_ratio)
         sep_test = int(chunk_size * args.test_ratio)
-        write_list(args.prefix + str_chunk + '_test.lst', chunk[:sep_test])
-        write_list(args.prefix + str_chunk + '_train.lst', chunk[sep_test:sep_test + sep])
-        write_list(args.prefix + str_chunk + '_val.lst', chunk[sep_test + sep:])
+        write_list(list_root_path + str_chunk + '_test.lst', chunk[:sep_test])
+        write_list(list_root_path + str_chunk + '_train.lst', chunk[sep_test:sep_test + sep])
+        write_list(list_root_path + str_chunk + '_val.lst', chunk[sep_test + sep:])
 
 def read_list(path_in):
     with open(path_in) as fin:
@@ -164,14 +169,14 @@ def parse_args():
                         help='If this is set im2rec will create image list(s) by traversing root folder\
         and output to <prefix>.lst.\
         Otherwise im2rec will read <prefix>.lst and create a database at <prefix>.rec')
-    cgroup.add_argument('--exts', type=list, default=['.jpeg', '.jpg'],
+    cgroup.add_argument('--exts', type=list, default=['.jpeg', '.jpg', '.png'],
                         help='list of acceptable image extensions.')
     cgroup.add_argument('--chunks', type=int, default=1, help='number of chunks.')
     cgroup.add_argument('--train-ratio', type=float, default=1.0,
                         help='Ratio of images to use for training.')
     cgroup.add_argument('--test-ratio', type=float, default=0,
                         help='Ratio of images to use for testing.')
-    cgroup.add_argument('--recursive', type=bool, default=False,
+    cgroup.add_argument('--recursive', type=bool, default=True,
                         help='If true recursively walk through subdirs and assign an unique label\
         to images in each folder. Otherwise only include images in the root folder\
         and give them label 0.')
@@ -193,15 +198,15 @@ def parse_args():
         1: Loads a color image. Any transparency of image will be neglected. It is the default flag.\
         0: Loads image in grayscale mode.\
         -1:Loads image as such including alpha channel.')
-    rgroup.add_argument('--encoding', type=str, default='.jpg', choices=['.jpg', '.png'],
+    rgroup.add_argument('--encoding', type=str, default='.png', choices=['.jpg', '.png'],
                         help='specify the encoding of the images.')
     rgroup.add_argument('--shuffle', default=True, help='If this is set as True, \
         im2rec will randomize the image order in <prefix>.lst')
     rgroup.add_argument('--pack-label', default=False,
         help='Whether to also pack multi dimensional label in the record file') 
     args = parser.parse_args()
-    args.prefix = os.path.abspath(args.prefix)
-    args.root = os.path.abspath(args.root)
+#    args.root = os.path.abspath(args.root)
+    
     return args
 
 if __name__ == '__main__':
