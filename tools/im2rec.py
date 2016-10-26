@@ -77,7 +77,6 @@ def make_list(args):
         write_list(list_root_path + str_chunk + '_val.lst', chunk[sep_test + sep:])
 
 def read_list(path_in):
-    print (path_in)
     with open(path_in) as fin:
         while True:
             line = fin.readline()
@@ -188,7 +187,7 @@ def parse_args():
                         help='specify whether to crop the center image to make it rectangular.')
     rgroup.add_argument('--quality', type=int, default=80,
                         help='JPEG quality for encoding, 1-100; or PNG compression for encoding, 1-9')
-    rgroup.add_argument('--num-thread', type=int, default=1,
+    rgroup.add_argument('--num-thread', type=int, default=2,
                         help='number of thread to use for encoding. order of images will be different\
         from the input list if >1. the input list will be modified to match the\
         resulting order.')
@@ -229,6 +228,7 @@ if __name__ == '__main__':
                 count += 1
                 image_list = read_list(os.path.abspath(fname))
                 # -- write_record -- #
+                fname = os.path.split(fname)[1]
                 try:
                     import multiprocessing
                     q_in = [multiprocessing.Queue(1024) for i in range(args.num_thread)]
