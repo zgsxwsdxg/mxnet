@@ -32,7 +32,7 @@ def SimpleFactory(data, ch_1x1, ch_3x3, mirror_attr):
     concat = mx.symbol.Concat(*[conv1x1, conv3x3])
     return concat
 
-def get_symbol(num_classes = 10, force_mirroring=False):
+def get_symbol(num_classes = 2, force_mirroring=False):
     if force_mirroring:
         attr = {'force_mirroring': 'true'}
     else:
